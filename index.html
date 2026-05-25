@@ -408,14 +408,14 @@ document.getElementById('navLogo').src = LOGO_W;
 document.getElementById('heroLogo').src = LOGO_W;
 document.getElementById('footerLogo').src = LOGO_W;
 let cart=[],activeFilter='all';
-function productCardHTML(p,idPrefix=''){const hasEdu=p.edu?true:false;return`<div class="product-card fade-in"><div class="product-img-wrap">${p.featured?'<span class="featured-badge">⭐ Featured</span>':''}<span class="stock-badge ${p.inStock?'in-stock':'out-stock'}">${p.inStock?'● In Stock':'○ Out of Stock'}</span><img src="${p.img}" alt="${p.name}" loading="lazy"></div><div class="product-body"><div class="product-code">${p.code}</div><div class="product-name">${p.name}</div><div class="product-strength">${p.strength}</div><div class="product-desc">${p.desc||''}</div>${hasEdu?`<button class="learn-btn" onclick="openEduModal('${p.code}')">🔬 Research & Education</button>`:''}<div class="product-footer"><div class="product-price">$${p.price.toFixed(2)}</div><button class="add-cart-btn" onclick="addToCart('${p.code}')" id="${idPrefix}btn_${p.code}">+ Add</button></div></div></div>`}
+function productCardHTML(p,idPrefix=''){const hasEdu=p.edu?true:false;return`<div class="product-card fade-in"><div class="product-img-wrap">${p.featured?'<span class="featured-badge">⭐ Featured</span>':''}<span class="stock-badge ${p.inStock?'in-stock':'out-stock'}">${p.inStock?'● In Stock':'○ Out of Stock'}</span><img src="${p.img}" alt="${p.name}" loading="lazy"></div><div class="product-body"><div class="product-code">${p.code}</div><div class="product-name">${p.name}</div><div class="product-strength">${p.strength}</div><div class="product-desc">${p.desc||''}</div>${hasEdu?`<button class="learn-btn" onclick="openEduModal('${p.code}')">🔬 Research & Education</button>`:''}<div class="product-footer"><div class="product-price">$${p.price.toFixed(2)}</div>${p.inStock ? `<button class="add-cart-btn" onclick="addToCart('${p.code}')" id="${idPrefix}btn_${p.code}">+ Add</button>` : `<button class="add-cart-btn" style="background:#94a3b8;cursor:not-allowed;opacity:.6" disabled>Out of Stock</button>`}</div></div></div>`}
 function renderFeatured(){document.getElementById('featuredGrid').innerHTML=PRODUCTS.filter(p=>p.featured).map(p=>productCardHTML(p,'f')).join('')}
 function renderCollections(){document.getElementById('collectionsGrid').innerHTML=Object.entries(COLLECTIONS).map(([k,c])=>`<div class="collection-card ${activeFilter===k?'active':''}" onclick="setFilter('${k}')"><div class="col-icon">${c.icon}</div><h3>${c.label}</h3><p>${c.desc}</p></div>`).join('')}
 function renderProducts(f){const filtered=f==='all'?PRODUCTS:PRODUCTS.filter(p=>p.collections.includes(f));document.getElementById('productsCount').textContent=`${filtered.length} compound${filtered.length!==1?'s':''}`;document.getElementById('productsGrid').innerHTML=filtered.map(p=>productCardHTML(p)).join('')}
 function renderFilterTabs(){const all=[{key:'all',label:'All'},...Object.entries(COLLECTIONS).map(([k,v])=>({key:k,label:v.icon+' '+v.label}))];document.getElementById('filterTabs').innerHTML=all.map(c=>`<button class="filter-tab ${activeFilter===c.key?'active':''}" onclick="setFilter('${c.key}')">${c.label}</button>`).join('')}
 function setFilter(f){activeFilter=f;renderFilterTabs();renderCollections();renderProducts(f);document.getElementById('shop').scrollIntoView({behavior:'smooth',block:'start'})}
 function renderStacks(){const s=[{label:"Ultimate Healing Protocol",name:"The Wolverine Stack",products:"BPC-157 + TB-500 — 10mg/10mg",code:"BB20",price:60,desc:"BPC-157 and TB-500 combined for comprehensive tissue repair research."},{label:"Advanced Healing Protocol",name:"The KLOW Stack",products:"GHK-Cu + BPC-157 + TB-500 + KPV",code:"KLOW",price:100,desc:"Four powerful peptides for the most complete regenerative research stack available."},{label:"GH Optimization Stack",name:"The CJC/Ipa Stack",products:"CJC-1295 no DAC + Ipamorelin — 5mg/5mg",code:"CJ10",price:60,desc:"Two of the most studied GH secretagogues combined for synergistic research."},{label:"Metabolic Research Stack",name:"The Recomp Stack",products:"Retatrutide RT20 + 5-Amino-1MQ 5AM05",code:null,price:103,desc:"Most studied metabolic compounds for comprehensive body composition research."},{label:"Cognitive Research Stack",name:"The Neuro Stack",products:"Semax + Selank + NAD+ Unbuffered",code:null,price:151,desc:"Three neuropeptides for cognitive function and cellular energy research."},{label:"Body Recomposition Stack",name:"The Performance Stack",products:"Tesamorelin + Ipamorelin + AOD-9604",code:null,price:185,desc:"GH secretagogues combined with AOD-9604 for body composition research."}];document.getElementById('stacksGrid').innerHTML=s.map(x=>`<div class="stack-card"><div class="stack-label">${x.label}</div><div class="stack-name">${x.name}</div><div class="stack-products">${x.products}</div><div class="stack-price">$${x.price.toFixed(2)}</div><button class="stack-btn" onclick="${x.code?`addToCart('${x.code}')`:`alert('Order the individual products: ${x.products}')`}">${x.code?'Add to Cart':'Order Individually →'}</button></div>`).join('')}
-function addToCart(code){const p=PRODUCTS.find(x=>x.code===code);if(!p)return;const ex=cart.find(i=>i.code===code);if(ex)ex.qty++;else cart.push({...p,qty:1});updateCartUI();['btn_'+code,'fbtn_'+code].forEach(id=>{const btn=document.getElementById(id);if(btn){btn.classList.add('added');btn.textContent='✓ Added';setTimeout(()=>{btn.classList.remove('added');btn.textContent='+ Add'},1200)}});openCart(null)}
+function addToCart(code){const p=PRODUCTS.find(x=>x.code===code);if(!p)return;if(!p.inStock){alert('Sorry, this product is currently out of stock.');return;}const ex=cart.find(i=>i.code===code);if(ex)ex.qty++;else cart.push({...p,qty:1});updateCartUI();['btn_'+code,'fbtn_'+code].forEach(id=>{const btn=document.getElementById(id);if(btn){btn.classList.add('added');btn.textContent='✓ Added';setTimeout(()=>{btn.classList.remove('added');btn.textContent='+ Add'},1200)}});openCart(null)}
 function updateCartUI(){const total=cart.reduce((s,i)=>s+i.price*i.qty,0);const count=cart.reduce((s,i)=>s+i.qty,0);document.getElementById('cartCount').textContent=count;document.getElementById('mobileCartCount').textContent=count;document.getElementById('cartTotal').textContent='$'+total.toFixed(2);const el=document.getElementById('cartItems');if(!cart.length){el.innerHTML='<div class="cart-empty">Your cart is empty.<br>Add some research compounds!</div>';return}el.innerHTML=cart.map(i=>`<div class="cart-item"><img class="cart-item-img" src="${i.img}" alt="${i.name}"><div class="cart-item-info"><div class="cart-item-name">${i.name}</div><div class="cart-item-strength">${i.strength} — ${i.code}</div><div class="cart-item-controls"><button class="qty-btn" onclick="changeQty('${i.code}',-1)">−</button><span class="qty-display">${i.qty}</span><button class="qty-btn" onclick="changeQty('${i.code}',1)">+</button><button class="cart-item-remove" onclick="removeFromCart('${i.code}')">✕ Remove</button></div></div><div class="cart-item-price">$${(i.price*i.qty).toFixed(2)}</div></div>`).join('')}
 function changeQty(code,d){const i=cart.find(x=>x.code===code);if(!i)return;i.qty+=d;if(i.qty<=0)removeFromCart(code);else updateCartUI()}
 function removeFromCart(code){cart=cart.filter(i=>i.code!==code);updateCartUI()}
@@ -430,7 +430,34 @@ function openEduModal(code){const p=PRODUCTS.find(x=>x.code===code);if(!p||!p.ed
 function closeEduModal(){document.getElementById('eduModal').classList.remove('open');document.body.style.overflow=''}
 document.getElementById('eduModal').addEventListener('click',function(e){if(e.target===this)closeEduModal()})
 function calcReconstitution(){const mg=parseFloat(document.getElementById('calcMg').value);const conc=parseFloat(document.getElementById('calcConc').value);const dose=parseFloat(document.getElementById('calcDose').value);const syringeUnits=parseInt(document.getElementById('calcSyringe').value);if(!mg||!conc||!dose){alert('Please fill in all fields.');return}const totalMcg=mg*1000;const bacWaterMl=totalMcg/conc;const mcgPerUnit=conc/syringeUnits;const unitsPerDose=dose/mcgPerUnit;const totalDoses=totalMcg/dose;document.getElementById('calcBacWater').textContent=bacWaterMl.toFixed(2);document.getElementById('calcUnits').textContent=unitsPerDose.toFixed(1);document.getElementById('calcDoses').textContent=Math.floor(totalDoses);document.getElementById('calcMcgPerUnit').textContent=mcgPerUnit.toFixed(1);document.getElementById('calcSummary').textContent=`Add ${bacWaterMl.toFixed(2)}mL bacteriostatic water to your ${mg}mg vial. Each ${unitsPerDose.toFixed(1)}-unit injection delivers ${dose}mcg. Your vial contains approximately ${Math.floor(totalDoses)} doses.`;document.getElementById('calcResults').classList.add('show')}
-renderFeatured();renderCollections();renderFilterTabs();renderProducts('all');renderStacks();
+// Fetch live inventory status from Google Sheet
+function fetchInventoryStatus() {
+  fetch('https://script.google.com/macros/s/AKfycbwU-ipzfF84OaXH8clEIqn5VGBVqKRj1via98QvR43TgYVUbv4oGSQFdSpiru02LqFz/exec?action=inventory')
+    .then(r => r.json())
+    .then(inv => {
+      PRODUCTS.forEach(p => {
+        if (inv[p.code] !== undefined) {
+          p.inStock = inv[p.code].inStock;
+        }
+      });
+      // Re-render everything with updated stock status
+      renderFeatured();
+      renderCollections();
+      renderFilterTabs();
+      renderProducts(activeFilter);
+      renderStacks();
+    })
+    .catch(() => {
+      // If fetch fails, render with default inStock values
+      renderFeatured();
+      renderCollections();
+      renderFilterTabs();
+      renderProducts('all');
+      renderStacks();
+    });
+}
+
+fetchInventoryStatus();
 </script>
 </body>
 </html>
