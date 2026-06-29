@@ -395,13 +395,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.55);padding:56px 24px 28px}
             </select>
           </div>
         </div>
-        <div class="calc-field">
-          <label>Syringe Size</label>
-          <select id="calcSyringe">
-            <option value="100">100-unit (1mL)</option>
-            <option value="50">50-unit (0.5mL)</option>
-          </select>
-        </div>
+
       </div>
       <button class="calc-btn" onclick="calcReconstitution()">⚗️ Calculate Syringe Units</button>
       <div class="calc-results" id="calcResults">
@@ -411,7 +405,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.55);padding:56px 24px 28px}
         </div>
         <div class="calc-result-grid">
           <div class="calc-result-item"><div class="calc-result-val" id="calcConc">—</div><div class="calc-result-lbl">mcg per mL</div></div>
-          <div class="calc-result-item"><div class="calc-result-val" id="calcMcgPerUnit">—</div><div class="calc-result-lbl">mcg per Unit</div></div>
+          <div class="calc-result-item"><div class="calc-result-val" id="calcMcgPerUnit">—</div><div class="calc-result-lbl">mcg per Unit (100u syringe)</div></div>
           <div class="calc-result-item"><div class="calc-result-val" id="calcDoses">—</div><div class="calc-result-lbl">Total Doses</div></div>
           <div class="calc-result-item"><div class="calc-result-val" id="calcVolPerDose">—</div><div class="calc-result-lbl">mL per Dose</div></div>
         </div>
@@ -524,6 +518,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.55);padding:56px 24px 28px}
 <script>
 // SCRIPT_URL defined in data.js
 
+window.addEventListener('load', function() {
 document.getElementById('navLogo').src = LOGO_W;
 document.getElementById('heroLogo').src = LOGO_W;
 document.getElementById('footerLogo').src = LOGO_W;
@@ -667,22 +662,22 @@ function calcReconstitution() {
   const reconMl = parseFloat(document.getElementById('calcReconMl').value);
   const doseAmt = parseFloat(document.getElementById('calcDoseAmt').value);
   const doseUnit = document.getElementById('calcDoseUnit').value;
-  const syringeUnits = parseInt(document.getElementById('calcSyringe').value);
   if (!vialMg || !reconMl || !doseAmt) { alert('Please fill in all fields.'); return; }
-  // Convert dose to mcg
   const doseMcg = doseUnit === 'mg' ? doseAmt * 1000 : doseAmt;
   const totalMcg = vialMg * 1000;
   const concMcgPerMl = totalMcg / reconMl;
-  const mcgPerUnit = concMcgPerMl / syringeUnits;
-  const unitsPerDose = doseMcg / mcgPerUnit;
-  const totalDoses = totalMcg / doseMcg;
+  // Units are always based on 100-unit (1mL) insulin syringe standard
+  // 1 unit = 0.01mL, so units = mL per dose / 0.01
   const mlPerDose = doseMcg / concMcgPerMl;
+  const unitsPerDose = mlPerDose * 100;
+  const totalDoses = totalMcg / doseMcg;
+  const mcgPerUnit = concMcgPerMl / 100;
   document.getElementById('calcUnits').textContent = unitsPerDose.toFixed(1);
   document.getElementById('calcConc').textContent = concMcgPerMl.toFixed(0);
   document.getElementById('calcMcgPerUnit').textContent = mcgPerUnit.toFixed(2);
   document.getElementById('calcDoses').textContent = Math.floor(totalDoses);
   document.getElementById('calcVolPerDose').textContent = mlPerDose.toFixed(3);
-  document.getElementById('calcSummary').textContent = `Draw ${unitsPerDose.toFixed(1)} units on a ${syringeUnits}-unit insulin syringe to deliver ${doseAmt}${doseUnit} (${doseMcg}mcg). Your ${vialMg}mg vial reconstituted in ${reconMl}mL provides approximately ${Math.floor(totalDoses)} doses.`;
+  document.getElementById('calcSummary').textContent = `Draw ${unitsPerDose.toFixed(1)} units on an insulin syringe to deliver ${doseAmt}${doseUnit} (${doseMcg}mcg). Your ${vialMg}mg vial reconstituted in ${reconMl}mL provides approximately ${Math.floor(totalDoses)} doses.`;
   document.getElementById('calcResults').classList.add('show');
 }
 
@@ -777,6 +772,7 @@ function fetchInventoryStatus() {
 }
 
 fetchInventoryStatus();
+}); // end window.onload
 </script>
 </body>
 </html>
