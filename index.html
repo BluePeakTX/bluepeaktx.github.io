@@ -273,6 +273,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.55);padding:56px 24px 28px}
 .fade-in{animation:fadeIn .45s ease forwards}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
+<script src="data.js"></script>
 </head>
 <body>
 <nav>
@@ -514,11 +515,9 @@ footer{background:var(--ink);color:rgba(255,255,255,.55);padding:56px 24px 28px}
     </div>
   </div>
 </div>
-<script src="data.js"></script>
 <script>
 // SCRIPT_URL defined in data.js
 
-window.addEventListener('load', function() {
 document.getElementById('navLogo').src = LOGO_W;
 document.getElementById('heroLogo').src = LOGO_W;
 document.getElementById('footerLogo').src = LOGO_W;
@@ -772,7 +771,6 @@ function fetchInventoryStatus() {
 }
 
 fetchInventoryStatus();
-}); // end window.onload
 </script>
 </body>
 </html>
